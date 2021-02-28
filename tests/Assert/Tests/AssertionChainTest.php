@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Assert
  *
@@ -13,63 +14,105 @@
 
 namespace Assert\Tests;
 
-class AssertionChainTest extends \PHPUnit_Framework_TestCase
+use Assert\Assert;
+use Assert\AssertionChain;
+use Assert\Tests\Fixtures\CustomAssertion;
+use PHPUnit\Framework\TestCase;
+
+class AssertionChainTest extends TestCase
 {
-    /**
-     * @test
-     */
-    public function it_chains_assertions()
+    public function testThatAssertionChainReturnAnAssertionChain()
     {
-        \Assert\that(10)->notEmpty()->integer();
+        $this->assertInstanceOf(AssertionChain::class, Assert::that(10)->notEmpty()->integer());
+    }
+
+    public function testThatAssertionChainShiftsArgumentsBy1()
+    {
+        $this->assertInstanceOf(AssertionChain::class, Assert::that(10)->eq(10));
+    }
+
+    public function testThatAssertionChainKnowsDefaultErrorMessage()
+    {
+        $this->expectException('Assert\InvalidArgumentException');
+        $this->expectExceptionMessage('Not Null and such');
+        Assert::that(null, 'Not Null and such')->notEmpty();
+    }
+
+    public function testThatAssertionChainSkipAssertionsOnValidNull()
+    {
+        $this->assertInstanceOf(AssertionChain::class, Assert::that(null)->nullOr()->integer()->eq(10));
+    }
+
+    public function testThatAssertionChainValidatesAllInputs()
+    {
+        $this->assertInstanceOf(AssertionChain::class, Assert::that([1, 2, 3])->all()->integer());
+    }
+
+    public function testAssertionChainThatAllShortcut()
+    {
+        $this->assertInstanceOf(AssertionChain::class, Assert::thatAll([1, 2, 3])->integer());
+    }
+
+    public function testAssertionChainNullOrShortcut()
+    {
+        $this->assertInstanceOf(AssertionChain::class, Assert::thatNullOr(null)->integer()->eq(10));
+    }
+
+    public function testThatAssertionChainThrowsExceptionForUnknownAssertion()
+    {
+        $this->expectException('RuntimeException');
+        $this->expectExceptionMessage('Assertion \'unknownAssertion\' does not exist.');
+        Assert::that(null)->unknownAssertion();
+    }
+
+    public function testAssertionChainSatisfyShortcut()
+    {
+        $this->assertInstanceOf(
+            AssertionChain::class,
+            Assert::that(null)->satisfy(
+                function ($value) {
+                    return \is_null($value);
+                }
+            )
+        );
+    }
+
+    public function testThatCustomAssertionClassIsUsedWhenSet()
+    {
+        $assertionChain = new AssertionChain('foo');
+        $assertionChain->setAssertionClassName(CustomAssertion::class);
+
+        CustomAssertion::clearCalls();
+        $message = \uniqid();
+        $assertionChain->string($message);
+
+        $this->assertSame([['string', 'foo']], CustomAssertion::getCalls());
     }
 
     /**
-     * @test
+     * @dataProvider provideDataToTestThatSetAssertionClassNameWillNotAcceptInvalidAssertionClasses
+     *
+     * @param mixed $assertionClassName
      */
-    public function it_shifts_arguments_to_assertions_by_one()
+    public function testThatSetAssertionClassNameWillNotAcceptInvalidAssertionClasses($assertionClassName)
     {
-        \Assert\that(10)->eq(10);
+        $this->expectException('LogicException');
+        $lazyAssertion = new AssertionChain('foo');
+
+        $lazyAssertion->setAssertionClassName($assertionClassName);
     }
 
     /**
-     * @test
+     * @return array
      */
-    public function it_knowns_default_error_message()
+    public function provideDataToTestThatSetAssertionClassNameWillNotAcceptInvalidAssertionClasses()
     {
-        $this->setExpectedException('Assert\InvalidArgumentException', 'Not Null and such');
-
-        \Assert\that(null, 'Not Null and such')->notEmpty();
-    }
-
-    /**
-     * @test
-     */
-    public function it_skips_assertions_on_valid_null()
-    {
-        \Assert\That(null)->nullOr()->integer()->eq(10);
-    }
-
-    /**
-     * @test
-     */
-    public function it_validates_all_inputs()
-    {
-        \Assert\That(array(1, 2, 3))->all()->integer();
-    }
-
-    /**
-     * @test
-     */
-    public function it_has_thatall_shortcut()
-    {
-        \Assert\ThatAll(array(1, 2, 3))->integer();
-    }
-
-    /**
-     * @test
-     */
-    public function it_has_nullor_shortcut()
-    {
-        \Assert\ThatNullOr(null)->integer()->eq(10);
+        return [
+            'null' => [null],
+            'string' => ['foo'],
+            'array' => [[]],
+            'object' => [new \stdClass()],
+            'other class' => [__CLASS__],
+        ];
     }
 }

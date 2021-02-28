@@ -12,21 +12,12 @@
  * to kontakt@beberlei.de so I can send you a copy immediately.
  */
 
-namespace Assert;
+namespace Assert\Tests\Fixtures;
 
-use Throwable;
+use Assert\Assert;
 
-interface AssertionFailedException extends Throwable
+class CustomAssert extends Assert
 {
-    /**
-     * @return string|null
-     */
-    public function getPropertyPath();
-
-    /**
-     * @return mixed
-     */
-    public function getValue();
-
-    public function getConstraints(): array;
+    protected static $assertionClass = CustomAssertion::class;
+    protected static $lazyAssertionExceptionClass = CustomLazyAssertionException::class;
 }

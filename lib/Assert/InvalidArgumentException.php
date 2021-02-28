@@ -1,10 +1,11 @@
 <?php
+
 /**
  * Assert
  *
  * LICENSE
  *
- * This source file is subject to the new BSD license that is bundled
+ * This source file is subject to the MIT license that is bundled
  * with this package in the file LICENSE.txt.
  * If you did not receive a copy of the license and are unable to
  * obtain it through the world-wide-web, please send an email
@@ -15,11 +16,22 @@ namespace Assert;
 
 class InvalidArgumentException extends \InvalidArgumentException implements AssertionFailedException
 {
+    /**
+     * @var string|null
+     */
     private $propertyPath;
+
+    /**
+     * @var mixed
+     */
     private $value;
+
+    /**
+     * @var array
+     */
     private $constraints;
 
-    public function __construct($message, $code, $propertyPath = null, $value, array $constraints = array())
+    public function __construct($message, $code, string $propertyPath = null, $value = null, array $constraints = [])
     {
         parent::__construct($message, $code);
 
@@ -35,7 +47,7 @@ class InvalidArgumentException extends \InvalidArgumentException implements Asse
      * Useful to transport information about the nature of the error
      * back to higher layers.
      *
-     * @return string
+     * @return string|null
      */
     public function getPropertyPath()
     {
@@ -54,12 +66,9 @@ class InvalidArgumentException extends \InvalidArgumentException implements Asse
 
     /**
      * Get the constraints that applied to the failed assertion.
-     *
-     * @return array
      */
-    public function getConstraints()
+    public function getConstraints(): array
     {
         return $this->constraints;
     }
 }
-

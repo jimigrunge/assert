@@ -12,21 +12,10 @@
  * to kontakt@beberlei.de so I can send you a copy immediately.
  */
 
-namespace Assert;
+namespace Assert\Tests\Fixtures;
 
-use Throwable;
+use Assert\InvalidArgumentException;
 
-interface AssertionFailedException extends Throwable
+class CustomException extends InvalidArgumentException
 {
-    /**
-     * @return string|null
-     */
-    public function getPropertyPath();
-
-    /**
-     * @return mixed
-     */
-    public function getValue();
-
-    public function getConstraints(): array;
 }

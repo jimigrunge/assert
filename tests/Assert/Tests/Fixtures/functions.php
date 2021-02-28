@@ -12,21 +12,8 @@
  * to kontakt@beberlei.de so I can send you a copy immediately.
  */
 
-namespace Assert;
+namespace Assert\Tests\Fixtures;
 
-use Throwable;
-
-interface AssertionFailedException extends Throwable
+function someCallable()
 {
-    /**
-     * @return string|null
-     */
-    public function getPropertyPath();
-
-    /**
-     * @return mixed
-     */
-    public function getValue();
-
-    public function getConstraints(): array;
 }

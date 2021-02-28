@@ -12,21 +12,14 @@
  * to kontakt@beberlei.de so I can send you a copy immediately.
  */
 
-namespace Assert;
+namespace Assert\Tests\Fixtures;
 
-use Throwable;
+use Assert\Assertion;
 
-interface AssertionFailedException extends Throwable
+class PR142_OverrideStringify extends Assertion
 {
-    /**
-     * @return string|null
-     */
-    public function getPropertyPath();
-
-    /**
-     * @return mixed
-     */
-    public function getValue();
-
-    public function getConstraints(): array;
+    protected static function stringify($value): string
+    {
+        return '***'.parent::stringify($value).'***';
+    }
 }
